@@ -5,9 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from auth import hash_password
-from database import Base, SessionLocal, engine
-from models import User
+from database import Base, engine
 from routers import auth, items
 from storage import UPLOAD_ROOT, ensure_upload_dirs
 
@@ -15,22 +13,6 @@ load_dotenv()
 
 ensure_upload_dirs()
 Base.metadata.create_all(bind=engine)
-
-
-def ensure_admin_user() -> None:
-    username = os.getenv("ADMIN_USERNAME", "admin")
-    password = os.getenv("ADMIN_PASSWORD", "admin123")
-    db = SessionLocal()
-    try:
-        existing = db.query(User).filter(User.username == username).first()
-        if existing is None:
-            db.add(User(username=username, hashed_password=hash_password(password)))
-            db.commit()
-    finally:
-        db.close()
-
-
-ensure_admin_user()
 
 app = FastAPI(title="Inventario API", version="0.1.0")
 

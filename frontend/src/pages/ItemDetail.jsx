@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { deleteItem, getItem, resolveMediaUrl, updateItem } from "../api/client";
 import ItemForm from "../components/ItemForm";
 
 export default function ItemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { canWrite } = useAuth();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -93,28 +95,36 @@ export default function ItemDetail() {
         <div className="item-detail-image">
           <img src={imageSrc} alt={item.name} />
         </div>
-      ) : null}
+      ) : (
+        <p className="muted">Nessuna immagine</p>
+      )}
 
-      <ItemForm
-        initialValues={item}
-        onSubmit={handleUpdate}
-        disabled={saving}
-        submitLabel="Salva modifiche"
-      />
+      {canWrite ? (
+        <>
+          <ItemForm
+            initialValues={item}
+            onSubmit={handleUpdate}
+            disabled={saving}
+            submitLabel="Salva modifiche"
+          />
 
-      {message ? <p className="success">{message}</p> : null}
-      {error ? <p className="error">{error}</p> : null}
+          {message ? <p className="success">{message}</p> : null}
+          {error ? <p className="error">{error}</p> : null}
 
-      <div className="detail-actions">
-        <button
-          type="button"
-          className="btn danger"
-          onClick={handleDelete}
-          disabled={saving}
-        >
-          Elimina
-        </button>
-      </div>
+          <div className="detail-actions">
+            <button
+              type="button"
+              className="btn danger"
+              onClick={handleDelete}
+              disabled={saving}
+            >
+              Elimina
+            </button>
+          </div>
+        </>
+      ) : (
+        <p className="muted">Account in sola visualizzazione.</p>
+      )}
     </section>
   );
 }

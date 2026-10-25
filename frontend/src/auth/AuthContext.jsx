@@ -47,6 +47,7 @@ export function AuthProvider({ children }) {
       user,
       loading,
       isAuthenticated: Boolean(user),
+      canWrite: Boolean(user?.can_write ?? user?.role_code === 1),
       login,
       logout,
     }),

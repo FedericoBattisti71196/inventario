@@ -34,12 +34,9 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-All’avvio vengono create le tabelle e, se manca, l’utente admin.
+All’avvio vengono create le tabelle se mancano. Gli utenti si creano solo da DB (`S_Users` + `D_Roles`).
 
-**Login di default** (modificabili nel `.env`):
-
-- username: `admin`
-- password: `admin123`
+**Ruoli** (`D_Roles.Code`): `1` = Amministratore (scrittura), `2` = Solo visualizzazione.
 
 - API: http://localhost:8000
 - Swagger: http://localhost:8000/docs
@@ -73,4 +70,4 @@ VITE_API_URL=http://15.235.245.150:8000
 | DELETE | `/items/{id}` | sì | Elimina |
 | GET | `/uploads/...` | no | File immagine salvati sul server |
 
-Tabelle DB attese (gestite a parte): `S_Users`, `T_Items` (`Name`, `Quantity`, `Year`, `ImagePath`, `CreatedAt`).
+Tabelle DB attese (gestite a parte): `D_Roles` (`Code`, `Description`), `S_Users` (`Username`, `HashedPassword`, `RoleID`), `T_Items` (`Name`, `Quantity`, `Year`, `ImagePath`, `CreatedAt`).

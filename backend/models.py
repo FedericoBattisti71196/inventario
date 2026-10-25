@@ -1,9 +1,20 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Integer, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
+
+ROLE_ADMIN = 1
+ROLE_VIEWER = 2
+
+
+class Role(Base):
+    __tablename__ = "D_Roles"
+
+    id: Mapped[int] = mapped_column("ID", Integer, primary_key=True, autoincrement=True)
+    code: Mapped[int] = mapped_column("Code", Integer, unique=True, nullable=False)
+    description: Mapped[str] = mapped_column("Description", String(128), nullable=False)
 
 
 class User(Base):
@@ -16,9 +27,26 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(
         "HashedPassword", String(255), nullable=False
     )
+    role_id: Mapped[int] = mapped_column(
+        "RoleID", Integer, ForeignKey("D_Roles.ID"), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         "CreatedAt", DateTime(timezone=True), server_default=func.now()
     )
+
+    role: Mapped["Role"] = relationship("Role", lazy="joined")
+
+    @property
+    def role_code(self) -> int:
+        return self.role.code if self.role is not None else 0
+
+    @property
+    def role_description(self) -> str | None:
+        return self.role.description if self.role is not None else None
+
+    @property
+    def can_write(self) -> bool:
+        return self.role_code == ROLE_ADMIN
 
 
 class Item(Base):

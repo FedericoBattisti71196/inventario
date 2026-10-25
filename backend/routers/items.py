@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import get_current_user, require_write_user
 from database import get_db
 from models import Item, User
 from schemas import ItemRead
@@ -64,7 +64,7 @@ async def create_item(
     year: int | None = Form(None),
     image: UploadFile | None = File(None),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User = Depends(require_write_user),
 ):
     cleaned_name = name.strip()
     if not cleaned_name:
@@ -98,7 +98,7 @@ async def update_item(
     image: UploadFile | None = File(None),
     clear_year: bool = Form(False),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User = Depends(require_write_user),
 ):
     item = db.get(Item, item_id)
     if item is None:
@@ -135,7 +135,7 @@ async def update_item(
 def delete_item(
     item_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    _: User = Depends(require_write_user),
 ):
     item = db.get(Item, item_id)
     if item is None:

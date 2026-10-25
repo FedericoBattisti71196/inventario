@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { getItems } from "../api/client";
 import ItemList from "../components/ItemList";
 
 export default function Inventario() {
+  const { canWrite } = useAuth();
   const [items, setItems] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -48,9 +50,11 @@ export default function Inventario() {
             <span className="section-kicker">Stock live</span>
             <h2 className="page-title">Catalogo</h2>
           </div>
-          <Link to="/items/new" className="btn">
-            Nuovo articolo
-          </Link>
+          {canWrite ? (
+            <Link to="/items/new" className="btn">
+              Nuovo articolo
+            </Link>
+          ) : null}
         </div>
         <input
           className="search-input"

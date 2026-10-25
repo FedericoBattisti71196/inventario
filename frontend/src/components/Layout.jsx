@@ -11,7 +11,10 @@ export default function Layout() {
           Inventario
         </Link>
         <div className="topbar-actions">
-          <span className="user-chip">{user?.username}</span>
+          <span className="user-chip">
+            {user?.username}
+            {user?.role_description ? ` · ${user.role_description}` : ""}
+          </span>
           <button type="button" className="btn ghost" onClick={logout}>
             Esci
           </button>

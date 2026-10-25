@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, computed_field
 
 
 class ItemRead(BaseModel):
@@ -25,3 +25,10 @@ class UserRead(BaseModel):
 
     id: int
     username: str
+    role_code: int
+    role_description: str | None = None
+
+    @computed_field
+    @property
+    def can_write(self) -> bool:
+        return self.role_code == 1

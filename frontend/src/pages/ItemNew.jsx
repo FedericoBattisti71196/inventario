@@ -1,12 +1,18 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import { createItem } from "../api/client";
 import ItemForm from "../components/ItemForm";
 
 export default function ItemNew() {
   const navigate = useNavigate();
+  const { canWrite } = useAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  if (!canWrite) {
+    return <Navigate to="/" replace />;
+  }
 
   async function handleCreate(payload) {
     setSaving(true);
