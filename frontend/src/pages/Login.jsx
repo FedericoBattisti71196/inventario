@@ -8,6 +8,7 @@ export default function Login() {
   const location = useLocation();
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -50,14 +51,26 @@ export default function Login() {
 
         <label>
           Password
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-            disabled={submitting}
-          />
+          <div className="password-field">
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+              disabled={submitting}
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((prev) => !prev)}
+              disabled={submitting}
+              aria-label={showPassword ? "Nascondi password" : "Mostra password"}
+              aria-pressed={showPassword}
+            >
+              {showPassword ? "Nascondi" : "Mostra"}
+            </button>
+          </div>
         </label>
 
         {error ? <p className="error">{error}</p> : null}
