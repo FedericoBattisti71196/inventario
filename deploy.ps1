@@ -50,7 +50,7 @@ $ViteApiUrl = $cfg["VITE_API_URL"]
 $PushBefore = ($cfg["PUSH_BEFORE_DEPLOY"] -eq "true")
 $Target = "${User}@${HostName}"
 
-Write-Host "==> Target: $Target:$RemotePath (branch $Branch)"
+Write-Host "==> Target: ${Target}:${RemotePath} (branch $Branch)"
 
 if ($PushBefore -and -not $SkipPush) {
     Write-Host "==> git push origin $Branch"
