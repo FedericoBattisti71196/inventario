@@ -13,11 +13,13 @@ export default function ItemDetail() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [imageBroken, setImageBroken] = useState(false);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError("");
+    setImageBroken(false);
     getItem(id)
       .then((data) => {
         if (active) setItem(data);
@@ -91,12 +93,18 @@ export default function ItemDetail() {
         {` · Qty ${item.quantity}`}
       </p>
 
-      {imageSrc ? (
+      {imageSrc && !imageBroken ? (
         <div className="item-detail-image">
-          <img src={imageSrc} alt={item.name} />
+          <img
+            src={imageSrc}
+            alt={item.name}
+            onError={() => setImageBroken(true)}
+          />
         </div>
       ) : (
-        <p className="muted">Nessuna immagine</p>
+        <p className="muted">
+          {imageSrc ? "Immagine non disponibile" : "Nessuna immagine"}
+        </p>
       )}
 
       {canWrite ? (

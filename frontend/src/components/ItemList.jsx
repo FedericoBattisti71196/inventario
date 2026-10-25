@@ -1,5 +1,21 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { resolveMediaUrl } from "../api/client";
+
+function ItemThumb({ src, alt }) {
+  const [broken, setBroken] = useState(false);
+  if (!src || broken) {
+    return <span className="muted">—</span>;
+  }
+  return (
+    <img
+      className="item-thumb"
+      src={src}
+      alt={alt}
+      onError={() => setBroken(true)}
+    />
+  );
+}
 
 export default function ItemList({ items, loading, error }) {
   if (loading) {
@@ -32,11 +48,7 @@ export default function ItemList({ items, loading, error }) {
             return (
               <tr key={item.id}>
                 <td>
-                  {src ? (
-                    <img className="item-thumb" src={src} alt={item.name} />
-                  ) : (
-                    <span className="muted">—</span>
-                  )}
+                  <ItemThumb src={src} alt={item.name} />
                 </td>
                 <td className="cell-id">{item.id}</td>
                 <td>
