@@ -69,15 +69,11 @@ if ($SkipBuildEnv) {
     $remoteEnv = "DEPLOY_BRANCH='$Branch'"
 }
 
-$remoteCmd = @"
-set -euo pipefail
-cd '$RemotePath'
-chmod +x scripts/remote-deploy.sh
-$remoteEnv bash scripts/remote-deploy.sh
-"@
+# Un'unica riga: evita CRLF di Windows che rompono `set -o pipefail` su bash remoto.
+$remoteCmd = "set -euo pipefail; cd '$RemotePath'; chmod +x scripts/remote-deploy.sh; $remoteEnv bash scripts/remote-deploy.sh"
 
 Write-Host "==> SSH deploy remoto..."
-ssh $Target $remoteCmd
+ssh $Target "bash -lc `"$remoteCmd`""
 if ($LASTEXITCODE -ne 0) {
     throw "Deploy remoto fallito (exit $LASTEXITCODE)"
 }
