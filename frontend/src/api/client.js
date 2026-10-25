@@ -87,10 +87,16 @@ export function getItem(id) {
   return request(`/items/${id}`);
 }
 
-function toItemFormData({ name, quantity, image }) {
+function toItemFormData({ name, quantity, year, image }) {
   const body = new FormData();
   body.set("name", name);
   body.set("quantity", String(quantity));
+  if (year === null || year === "" || Number.isNaN(Number(year))) {
+    body.set("clear_year", "true");
+  } else {
+    body.set("year", String(Number(year)));
+    body.set("clear_year", "false");
+  }
   if (image instanceof File) {
     body.set("image", image);
   }

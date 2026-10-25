@@ -60,14 +60,16 @@ export default function ItemDetail() {
   }
 
   if (loading) {
-    return <p className="muted">Caricamento...</p>;
+    return <p className="empty-state">Caricamento record…</p>;
   }
 
   if (!item) {
     return (
       <section>
         <p className="error">{error || "Articolo non trovato"}</p>
-        <Link to="/">Torna all'inventario</Link>
+        <Link to="/" className="back-link">
+          ← Catalogo
+        </Link>
       </section>
     );
   }
@@ -76,11 +78,16 @@ export default function ItemDetail() {
 
   return (
     <section>
-      <p>
-        <Link to="/">← Inventario</Link>
+      <Link to="/" className="back-link">
+        ← Catalogo
+      </Link>
+      <span className="section-kicker">Record</span>
+      <h2 className="page-title">{item.name}</h2>
+      <p className="page-meta">
+        ID {item.id}
+        {item.year != null ? ` · Anno ${item.year}` : ""}
+        {` · Qty ${item.quantity}`}
       </p>
-      <h2>{item.name}</h2>
-      <p className="muted">ID {item.id}</p>
 
       {imageSrc ? (
         <div className="item-detail-image">

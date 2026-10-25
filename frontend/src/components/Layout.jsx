@@ -7,13 +7,11 @@ export default function Layout() {
   return (
     <div className="app">
       <header className="topbar">
-        <div>
-          <Link to="/" className="brand">
-            Inventario
-          </Link>
-        </div>
+        <Link to="/" className="brand">
+          Inventario
+        </Link>
         <div className="topbar-actions">
-          <span className="muted">{user?.username}</span>
+          <span className="user-chip">{user?.username}</span>
           <button type="button" className="btn ghost" onClick={logout}>
             Esci
           </button>

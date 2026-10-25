@@ -31,7 +31,12 @@ export default function Inventario() {
     if (!q) return items;
     return items.filter((item) => {
       const name = (item.name || "").toLowerCase();
-      return name.includes(q) || String(item.id).includes(q);
+      const year = item.year == null ? "" : String(item.year);
+      return (
+        name.includes(q) ||
+        year.includes(q) ||
+        String(item.id).includes(q)
+      );
     });
   }, [items, query]);
 
@@ -39,7 +44,10 @@ export default function Inventario() {
     <>
       <section>
         <div className="section-header">
-          <h2>Inventario</h2>
+          <div>
+            <span className="section-kicker">Stock live</span>
+            <h2 className="page-title">Catalogo</h2>
+          </div>
           <Link to="/items/new" className="btn">
             Nuovo articolo
           </Link>
@@ -47,14 +55,15 @@ export default function Inventario() {
         <input
           className="search-input"
           type="search"
-          placeholder="Cerca per nome o ID..."
+          placeholder="Cerca per nome, anno o ID..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
       </section>
 
       <section>
-        <h2>Elenco ({filtered.length})</h2>
+        <span className="section-kicker">Records · {filtered.length}</span>
+        <h2 className="page-title">Elenco</h2>
         <ItemList items={filtered} loading={loading} error={error} />
       </section>
     </>

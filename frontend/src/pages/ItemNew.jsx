@@ -22,10 +22,11 @@ export default function ItemNew() {
 
   return (
     <section>
-      <p>
-        <Link to="/">← Inventario</Link>
-      </p>
-      <h2>Nuovo articolo</h2>
+      <Link to="/" className="back-link">
+        ← Catalogo
+      </Link>
+      <span className="section-kicker">Insert</span>
+      <h2 className="page-title">Nuovo articolo</h2>
       <ItemForm
         onSubmit={handleCreate}
         disabled={saving}

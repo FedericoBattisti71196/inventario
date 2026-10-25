@@ -27,6 +27,7 @@ class Item(Base):
     id: Mapped[int] = mapped_column("ID", Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column("Name", String(255), nullable=False)
     quantity: Mapped[int] = mapped_column("Quantity", Integer, nullable=False, default=0)
+    year: Mapped[int | None] = mapped_column("Year", Integer, nullable=True)
     image_path: Mapped[str | None] = mapped_column(
         "ImagePath", String(512), nullable=True
     )

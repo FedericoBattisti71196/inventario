@@ -9,12 +9,27 @@ from storage import delete_item_image, image_url, save_item_image
 
 router = APIRouter(prefix="/items", tags=["items"])
 
+YEAR_MIN = 1000
+YEAR_MAX = 2100
+
+
+def parse_year(value: int | None) -> int | None:
+    if value is None:
+        return None
+    if value < YEAR_MIN or value > YEAR_MAX:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Anno non valido (tra {YEAR_MIN} e {YEAR_MAX})",
+        )
+    return value
+
 
 def to_item_read(item: Item) -> ItemRead:
     return ItemRead(
         id=item.id,
         name=item.name,
         quantity=item.quantity,
+        year=item.year,
         image_path=item.image_path,
         image_url=image_url(item.image_path),
         created_at=item.created_at,
@@ -46,6 +61,7 @@ def get_item(
 async def create_item(
     name: str = Form(..., min_length=1, max_length=255),
     quantity: int = Form(0, ge=0),
+    year: int | None = Form(None),
     image: UploadFile | None = File(None),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
@@ -61,7 +77,12 @@ async def create_item(
     if image is not None and image.filename:
         image_path = await save_item_image(image)
 
-    item = Item(name=cleaned_name, quantity=quantity, image_path=image_path)
+    item = Item(
+        name=cleaned_name,
+        quantity=quantity,
+        year=parse_year(year),
+        image_path=image_path,
+    )
     db.add(item)
     db.commit()
     db.refresh(item)
@@ -73,7 +94,9 @@ async def update_item(
     item_id: int,
     name: str | None = Form(None, min_length=1, max_length=255),
     quantity: int | None = Form(None, ge=0),
+    year: int | None = Form(None),
     image: UploadFile | None = File(None),
+    clear_year: bool = Form(False),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
@@ -92,6 +115,11 @@ async def update_item(
 
     if quantity is not None:
         item.quantity = quantity
+
+    if clear_year:
+        item.year = None
+    elif year is not None:
+        item.year = parse_year(year)
 
     if image is not None and image.filename:
         new_path = await save_item_image(image)

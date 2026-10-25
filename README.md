@@ -68,9 +68,9 @@ VITE_API_URL=http://15.235.245.150:8000
 | GET | `/auth/me` | sì | Utente corrente |
 | GET | `/items` | sì | Elenco |
 | GET | `/items/{id}` | sì | Dettaglio |
-| POST | `/items` | sì | Crea (`multipart`: name, quantity, image) |
+| POST | `/items` | sì | Crea (`multipart`: name, quantity, year, image) |
 | PUT | `/items/{id}` | sì | Aggiorna (`multipart`) |
 | DELETE | `/items/{id}` | sì | Elimina |
 | GET | `/uploads/...` | no | File immagine salvati sul server |
 
-Tabelle DB attese (gestite a parte): `S_Users`, `T_Items` (`Name`, `Quantity`, `ImagePath`, `CreatedAt`).
+Tabelle DB attese (gestite a parte): `S_Users`, `T_Items` (`Name`, `Quantity`, `Year`, `ImagePath`, `CreatedAt`).

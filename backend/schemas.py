@@ -9,6 +9,7 @@ class ItemRead(BaseModel):
     id: int
     name: str
     quantity: int
+    year: int | None = None
     image_path: str | None = None
     image_url: str | None = None
     created_at: datetime | None = None
