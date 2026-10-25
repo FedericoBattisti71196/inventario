@@ -33,9 +33,9 @@ export default function Login() {
   return (
     <main className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
-        <span className="section-kicker">Access control</span>
+        <span className="section-kicker">Accesso</span>
         <h1>Inventario</h1>
-        <p className="login-lead">Entra per gestire stock, anni e media.</p>
+        <p className="login-lead">Accedi per gestire gli articoli.</p>
 
         <label>
           Username
