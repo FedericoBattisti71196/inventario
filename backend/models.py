@@ -6,6 +6,21 @@ from sqlalchemy.orm import Mapped, mapped_column
 from database import Base
 
 
+class User(Base):
+    __tablename__ = "S_Users"
+
+    id: Mapped[int] = mapped_column("ID", Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(
+        "Username", String(64), unique=True, nullable=False
+    )
+    hashed_password: Mapped[str] = mapped_column(
+        "HashedPassword", String(255), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        "CreatedAt", DateTime(timezone=True), server_default=func.now()
+    )
+
+
 class Item(Base):
     __tablename__ = "items"
 

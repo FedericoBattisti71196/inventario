@@ -1,0 +1,13 @@
+# Copia come deploy.config e personalizza.
+# deploy.config non va in git (contiene host/percorsi).
+
+DEPLOY_HOST=15.235.245.150
+DEPLOY_USER=root
+DEPLOY_PATH=/opt/inventario
+DEPLOY_BRANCH=main
+
+# URL API usato nel build del frontend in produzione
+VITE_API_URL=http://15.235.245.150:8000
+
+# Se true, esegue git push origin prima del deploy remoto
+PUSH_BEFORE_DEPLOY=true

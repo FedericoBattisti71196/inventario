@@ -1,0 +1,15 @@
+[Unit]
+Description=Inventario frontend (static build)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/inventario/frontend
+ExecStart=/usr/bin/npx --yes serve -s dist -l 5173
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

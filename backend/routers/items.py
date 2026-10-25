@@ -1,20 +1,28 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from auth import get_current_user
 from database import get_db
-from models import Item
+from models import Item, User
 from schemas import ItemCreate, ItemRead, ItemUpdate
 
 router = APIRouter(prefix="/items", tags=["items"])
 
 
 @router.get("", response_model=list[ItemRead])
-def list_items(db: Session = Depends(get_db)):
+def list_items(
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
     return db.query(Item).order_by(Item.id).all()
 
 
 @router.get("/{item_id}", response_model=ItemRead)
-def get_item(item_id: int, db: Session = Depends(get_db)):
+def get_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
     item = db.get(Item, item_id)
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item non trovato")
@@ -22,7 +30,11 @@ def get_item(item_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=ItemRead, status_code=status.HTTP_201_CREATED)
-def create_item(payload: ItemCreate, db: Session = Depends(get_db)):
+def create_item(
+    payload: ItemCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
     item = Item(**payload.model_dump())
     db.add(item)
     db.commit()
@@ -31,7 +43,12 @@ def create_item(payload: ItemCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/{item_id}", response_model=ItemRead)
-def update_item(item_id: int, payload: ItemUpdate, db: Session = Depends(get_db)):
+def update_item(
+    item_id: int,
+    payload: ItemUpdate,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
     item = db.get(Item, item_id)
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item non trovato")
@@ -45,7 +62,11 @@ def update_item(item_id: int, payload: ItemUpdate, db: Session = Depends(get_db)
 
 
 @router.delete("/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_item(item_id: int, db: Session = Depends(get_db)):
+def delete_item(
+    item_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
     item = db.get(Item, item_id)
     if item is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item non trovato")

@@ -1,17 +1,54 @@
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const TOKEN_KEY = "inventario_token";
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
 
 async function request(path, options = {}) {
+  const headers = {
+    ...(options.body instanceof URLSearchParams
+      ? { "Content-Type": "application/x-www-form-urlencoded" }
+      : { "Content-Type": "application/json" }),
+    ...(options.headers || {}),
+  };
+
+  const token = getToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
     ...options,
+    headers,
   });
 
+  if (response.status === 401) {
+    clearToken();
+    throw new Error("Sessione scaduta. Effettua di nuovo il login.");
+  }
+
   if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Errore HTTP ${response.status}`);
+    const text = await response.text();
+    let detail = text || `Errore HTTP ${response.status}`;
+    try {
+      const data = JSON.parse(text);
+      detail = data.detail || detail;
+      if (Array.isArray(detail)) {
+        detail = detail.map((d) => d.msg || JSON.stringify(d)).join(", ");
+      }
+    } catch {
+      // keep text detail
+    }
+    throw new Error(detail);
   }
 
   if (response.status === 204) {
@@ -19,6 +56,20 @@ async function request(path, options = {}) {
   }
 
   return response.json();
+}
+
+export function login(username, password) {
+  const body = new URLSearchParams();
+  body.set("username", username);
+  body.set("password", password);
+  return request("/auth/login", {
+    method: "POST",
+    body,
+  });
+}
+
+export function getMe() {
+  return request("/auth/me");
 }
 
 export function getItems() {

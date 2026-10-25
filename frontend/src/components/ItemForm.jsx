@@ -1,14 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const initialForm = {
+const emptyForm = {
   nome: "",
   sku: "",
   quantita: 0,
   prezzo: 0,
 };
 
-export default function ItemForm({ onSubmit, disabled }) {
-  const [form, setForm] = useState(initialForm);
+export default function ItemForm({
+  onSubmit,
+  disabled,
+  initialValues,
+  submitLabel = "Aggiungi",
+}) {
+  const [form, setForm] = useState(initialValues || emptyForm);
+
+  useEffect(() => {
+    if (initialValues) {
+      setForm({
+        nome: initialValues.nome || "",
+        sku: initialValues.sku || "",
+        quantita: Number(initialValues.quantita) || 0,
+        prezzo: Number(initialValues.prezzo) || 0,
+      });
+    }
+  }, [initialValues]);
 
   function handleChange(event) {
     const { name, value, type } = event.target;
@@ -26,7 +42,9 @@ export default function ItemForm({ onSubmit, disabled }) {
       quantita: form.quantita,
       prezzo: form.prezzo,
     });
-    setForm(initialForm);
+    if (!initialValues) {
+      setForm(emptyForm);
+    }
   }
 
   return (
@@ -73,8 +91,8 @@ export default function ItemForm({ onSubmit, disabled }) {
           disabled={disabled}
         />
       </label>
-      <button type="submit" disabled={disabled}>
-        Aggiungi
+      <button type="submit" className="btn" disabled={disabled}>
+        {submitLabel}
       </button>
     </form>
   );

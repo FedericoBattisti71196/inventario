@@ -1,6 +1,14 @@
 # Inventario
 
-Scheletro applicazione inventario con **FastAPI**, **MySQL** e **React**.
+Applicazione inventario con **FastAPI**, **MariaDB/MySQL** e **React**.
+
+## Pagine
+
+| Route | Descrizione |
+|-------|-------------|
+| `/login` | Accesso |
+| `/` | Inventario (ricerca + lista cliccabile + nuovo articolo) |
+| `/items/:id` | Dettaglio (modifica / elimina) |
 
 ## Struttura
 
@@ -11,59 +19,54 @@ inventario/
 └── README.md
 ```
 
-## Prerequisiti
+## Setup backend
 
-- Python 3.11+
-- Node.js 18+
-- MySQL in esecuzione
-
-## Setup MySQL
-
-1. Crea il database (opzionale se usi già `create_all` di SQLAlchemy):
-
-```bash
-mysql -u root -p < backend/sql/schema.sql
-```
-
-2. Copia e configura le variabili ambiente:
-
-```bash
-cd backend
-copy .env.example .env
-```
-
-Modifica `DATABASE_URL` in `backend/.env` con utente e password MySQL reali.
-
-## Backend
+1. Configura `backend/.env` (vedi `.env.example`).
+2. Installa e avvia:
 
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate
+# Linux: source .venv/bin/activate
+# Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-- API: http://localhost:8000
-- Docs Swagger: http://localhost:8000/docs
+All’avvio vengono create le tabelle e, se manca, l’utente admin.
 
-## Frontend
+**Login di default** (modificabili nel `.env`):
+
+- username: `admin`
+- password: `admin123`
+
+- API: http://localhost:8000
+- Swagger: http://localhost:8000/docs
+
+## Setup frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-- UI: http://localhost:5173
+Opzionale: crea `frontend/.env` con:
 
-## Endpoint principali
+```env
+VITE_API_URL=http://15.235.245.150:8000
+```
 
-| Metodo | Path | Descrizione |
-|--------|------|-------------|
-| GET | `/health` | Health check |
-| GET | `/items` | Elenco articoli |
-| GET | `/items/{id}` | Dettaglio |
-| POST | `/items` | Crea articolo |
-| PUT | `/items/{id}` | Aggiorna |
-| DELETE | `/items/{id}` | Elimina |
+(usa l’URL reale dell’API)
+
+## Endpoint
+
+| Metodo | Path | Auth | Descrizione |
+|--------|------|------|-------------|
+| POST | `/auth/login` | no | Login (form username/password) |
+| GET | `/auth/me` | sì | Utente corrente |
+| GET | `/items` | sì | Elenco |
+| GET | `/items/{id}` | sì | Dettaglio |
+| POST | `/items` | sì | Crea |
+| PUT | `/items/{id}` | sì | Aggiorna |
+| DELETE | `/items/{id}` | sì | Elimina |
