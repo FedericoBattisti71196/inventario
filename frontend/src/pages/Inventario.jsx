@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createItem, getItems } from "../api/client";
-import ItemForm from "../components/ItemForm";
+import { Link } from "react-router-dom";
+import { getItems } from "../api/client";
 import ItemList from "../components/ItemList";
 
 export default function Inventario() {
   const [items, setItems] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const loadItems = useCallback(async () => {
@@ -31,41 +30,27 @@ export default function Inventario() {
     const q = query.trim().toLowerCase();
     if (!q) return items;
     return items.filter((item) => {
-      const nome = (item.nome || "").toLowerCase();
-      const sku = (item.sku || "").toLowerCase();
-      return nome.includes(q) || sku.includes(q) || String(item.id).includes(q);
+      const name = (item.name || "").toLowerCase();
+      return name.includes(q) || String(item.id).includes(q);
     });
   }, [items, query]);
-
-  async function handleCreate(payload) {
-    setSaving(true);
-    setError("");
-    try {
-      await createItem(payload);
-      await loadItems();
-    } catch (err) {
-      setError(err.message || "Impossibile creare l'articolo");
-    } finally {
-      setSaving(false);
-    }
-  }
 
   return (
     <>
       <section>
-        <h2>Inventario</h2>
+        <div className="section-header">
+          <h2>Inventario</h2>
+          <Link to="/items/new" className="btn">
+            Nuovo articolo
+          </Link>
+        </div>
         <input
           className="search-input"
           type="search"
-          placeholder="Cerca per nome, SKU o ID..."
+          placeholder="Cerca per nome o ID..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-      </section>
-
-      <section>
-        <h2>Nuovo articolo</h2>
-        <ItemForm onSubmit={handleCreate} disabled={saving} />
       </section>
 
       <section>

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { resolveMediaUrl } from "../api/client";
 
 export default function ItemList({ items, loading, error }) {
   if (loading) {
@@ -17,27 +18,38 @@ export default function ItemList({ items, loading, error }) {
     <table className="items-table">
       <thead>
         <tr>
+          <th>Foto</th>
           <th>ID</th>
           <th>Nome</th>
-          <th>SKU</th>
           <th>Quantità</th>
-          <th>Prezzo</th>
         </tr>
       </thead>
       <tbody>
-        {items.map((item) => (
-          <tr key={item.id}>
-            <td>{item.id}</td>
-            <td>
-              <Link to={`/items/${item.id}`} className="item-link">
-                {item.nome}
-              </Link>
-            </td>
-            <td>{item.sku || "—"}</td>
-            <td>{item.quantita}</td>
-            <td>€ {Number(item.prezzo).toFixed(2)}</td>
-          </tr>
-        ))}
+        {items.map((item) => {
+          const src = resolveMediaUrl(item.image_url);
+          return (
+            <tr key={item.id}>
+              <td>
+                {src ? (
+                  <img
+                    className="item-thumb"
+                    src={src}
+                    alt={item.name}
+                  />
+                ) : (
+                  <span className="muted">—</span>
+                )}
+              </td>
+              <td>{item.id}</td>
+              <td>
+                <Link to={`/items/${item.id}`} className="item-link">
+                  {item.name}
+                </Link>
+              </td>
+              <td>{item.quantity}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

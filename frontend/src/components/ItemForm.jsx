@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import { resolveMediaUrl } from "../api/client";
 
 const emptyForm = {
-  nome: "",
-  sku: "",
-  quantita: 0,
-  prezzo: 0,
+  name: "",
+  quantity: 0,
+  image: null,
 };
 
 export default function ItemForm({
@@ -13,21 +13,36 @@ export default function ItemForm({
   initialValues,
   submitLabel = "Aggiungi",
 }) {
-  const [form, setForm] = useState(initialValues || emptyForm);
+  const [form, setForm] = useState(emptyForm);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
     if (initialValues) {
       setForm({
-        nome: initialValues.nome || "",
-        sku: initialValues.sku || "",
-        quantita: Number(initialValues.quantita) || 0,
-        prezzo: Number(initialValues.prezzo) || 0,
+        name: initialValues.name || "",
+        quantity: Number(initialValues.quantity) || 0,
+        image: null,
       });
+      setPreviewUrl(resolveMediaUrl(initialValues.image_url));
+    } else {
+      setForm(emptyForm);
+      setPreviewUrl(null);
     }
   }, [initialValues]);
 
+  useEffect(() => {
+    if (!(form.image instanceof File)) return undefined;
+    const objectUrl = URL.createObjectURL(form.image);
+    setPreviewUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [form.image]);
+
   function handleChange(event) {
-    const { name, value, type } = event.target;
+    const { name, value, type, files } = event.target;
+    if (type === "file") {
+      setForm((prev) => ({ ...prev, image: files?.[0] || null }));
+      return;
+    }
     setForm((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
@@ -37,13 +52,14 @@ export default function ItemForm({
   async function handleSubmit(event) {
     event.preventDefault();
     await onSubmit({
-      nome: form.nome.trim(),
-      sku: form.sku.trim() || null,
-      quantita: form.quantita,
-      prezzo: form.prezzo,
+      name: form.name.trim(),
+      quantity: form.quantity,
+      image: form.image,
     });
     if (!initialValues) {
       setForm(emptyForm);
+      setPreviewUrl(null);
+      event.target.reset();
     }
   }
 
@@ -52,45 +68,39 @@ export default function ItemForm({
       <label>
         Nome
         <input
-          name="nome"
-          value={form.nome}
+          name="name"
+          value={form.name}
           onChange={handleChange}
           required
           disabled={disabled}
         />
       </label>
       <label>
-        SKU
-        <input
-          name="sku"
-          value={form.sku}
-          onChange={handleChange}
-          disabled={disabled}
-        />
-      </label>
-      <label>
         Quantità
         <input
-          name="quantita"
+          name="quantity"
           type="number"
           min="0"
-          value={form.quantita}
+          value={form.quantity}
           onChange={handleChange}
           disabled={disabled}
         />
       </label>
       <label>
-        Prezzo
+        Immagine
         <input
-          name="prezzo"
-          type="number"
-          min="0"
-          step="0.01"
-          value={form.prezzo}
+          name="image"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
           onChange={handleChange}
           disabled={disabled}
         />
       </label>
+      {previewUrl ? (
+        <div className="item-preview">
+          <img src={previewUrl} alt="Anteprima articolo" />
+        </div>
+      ) : null}
       <button type="submit" className="btn" disabled={disabled}>
         {submitLabel}
       </button>

@@ -3,14 +3,17 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from auth import hash_password
 from database import Base, SessionLocal, engine
 from models import User
 from routers import auth, items
+from storage import UPLOAD_ROOT, ensure_upload_dirs
 
 load_dotenv()
 
+ensure_upload_dirs()
 Base.metadata.create_all(bind=engine)
 
 
@@ -47,6 +50,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(items.router)
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_ROOT)), name="uploads")
 
 
 @app.get("/health")

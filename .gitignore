@@ -17,3 +17,6 @@ dist/
 
 # Deploy locale
 deploy.config
+
+# Upload immagini inventario
+backend/uploads/

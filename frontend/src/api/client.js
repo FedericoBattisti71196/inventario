@@ -13,13 +13,20 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+export function resolveMediaUrl(path) {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;
+}
+
 async function request(path, options = {}) {
-  const headers = {
-    ...(options.body instanceof URLSearchParams
-      ? { "Content-Type": "application/x-www-form-urlencoded" }
-      : { "Content-Type": "application/json" }),
-    ...(options.headers || {}),
-  };
+  const headers = { ...(options.headers || {}) };
+
+  if (!(options.body instanceof FormData) && !(options.body instanceof URLSearchParams)) {
+    headers["Content-Type"] = "application/json";
+  } else if (options.body instanceof URLSearchParams) {
+    headers["Content-Type"] = "application/x-www-form-urlencoded";
+  }
 
   const token = getToken();
   if (token) {
@@ -80,17 +87,27 @@ export function getItem(id) {
   return request(`/items/${id}`);
 }
 
+function toItemFormData({ name, quantity, image }) {
+  const body = new FormData();
+  body.set("name", name);
+  body.set("quantity", String(quantity));
+  if (image instanceof File) {
+    body.set("image", image);
+  }
+  return body;
+}
+
 export function createItem(payload) {
   return request("/items", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: toItemFormData(payload),
   });
 }
 
 export function updateItem(id, payload) {
   return request(`/items/${id}`, {
     method: "PUT",
-    body: JSON.stringify(payload),
+    body: toItemFormData(payload),
   });
 }
 

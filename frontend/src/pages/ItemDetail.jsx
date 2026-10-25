@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { deleteItem, getItem, updateItem } from "../api/client";
+import { deleteItem, getItem, resolveMediaUrl, updateItem } from "../api/client";
 import ItemForm from "../components/ItemForm";
 
 export default function ItemDetail() {
@@ -47,7 +47,7 @@ export default function ItemDetail() {
   }
 
   async function handleDelete() {
-    if (!window.confirm(`Eliminare "${item?.nome}"?`)) return;
+    if (!window.confirm(`Eliminare "${item?.name}"?`)) return;
     setSaving(true);
     setError("");
     try {
@@ -72,13 +72,21 @@ export default function ItemDetail() {
     );
   }
 
+  const imageSrc = resolveMediaUrl(item.image_url);
+
   return (
     <section>
       <p>
         <Link to="/">← Inventario</Link>
       </p>
-      <h2>{item.nome}</h2>
+      <h2>{item.name}</h2>
       <p className="muted">ID {item.id}</p>
+
+      {imageSrc ? (
+        <div className="item-detail-image">
+          <img src={imageSrc} alt={item.name} />
+        </div>
+      ) : null}
 
       <ItemForm
         initialValues={item}

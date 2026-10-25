@@ -7,7 +7,8 @@ Applicazione inventario con **FastAPI**, **MariaDB/MySQL** e **React**.
 | Route | Descrizione |
 |-------|-------------|
 | `/login` | Accesso |
-| `/` | Inventario (ricerca + lista cliccabile + nuovo articolo) |
+| `/` | Inventario (ricerca + lista cliccabile) |
+| `/items/new` | Nuovo articolo (insert) |
 | `/items/:id` | Dettaglio (modifica / elimina) |
 
 ## Struttura
@@ -67,6 +68,9 @@ VITE_API_URL=http://15.235.245.150:8000
 | GET | `/auth/me` | sì | Utente corrente |
 | GET | `/items` | sì | Elenco |
 | GET | `/items/{id}` | sì | Dettaglio |
-| POST | `/items` | sì | Crea |
-| PUT | `/items/{id}` | sì | Aggiorna |
+| POST | `/items` | sì | Crea (`multipart`: name, quantity, image) |
+| PUT | `/items/{id}` | sì | Aggiorna (`multipart`) |
 | DELETE | `/items/{id}` | sì | Elimina |
+| GET | `/uploads/...` | no | File immagine salvati sul server |
+
+Tabelle DB attese (gestite a parte): `S_Users`, `T_Items` (`Name`, `Quantity`, `ImagePath`, `CreatedAt`).

@@ -13,6 +13,9 @@ export default function Layout() {
           </Link>
         </div>
         <div className="topbar-actions">
+          <Link to="/items/new" className="btn ghost">
+            Nuovo
+          </Link>
           <span className="muted">{user?.username}</span>
           <button type="button" className="btn ghost" onClick={logout}>
             Esci
