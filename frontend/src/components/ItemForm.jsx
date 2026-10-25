@@ -20,12 +20,15 @@ export default function ItemForm({
   const [previewUrl, setPreviewUrl] = useState(null);
   const cameraInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+  const lastQuantityRef = useRef(0);
 
   useEffect(() => {
     if (initialValues) {
+      const qty = Number(initialValues.quantity) || 0;
+      lastQuantityRef.current = qty;
       setForm({
         name: initialValues.name || "",
-        quantity: Number(initialValues.quantity) || 0,
+        quantity: qty,
         year:
           initialValues.year === null || initialValues.year === undefined
             ? ""
@@ -34,6 +37,7 @@ export default function ItemForm({
       });
       setPreviewUrl(resolveMediaUrl(initialValues.image_url));
     } else {
+      lastQuantityRef.current = 0;
       setForm(emptyForm);
       setPreviewUrl(null);
     }
@@ -56,10 +60,52 @@ export default function ItemForm({
       setForm((prev) => ({ ...prev, year: value }));
       return;
     }
+    if (name === "quantity") {
+      if (value === "") {
+        setForm((prev) => ({ ...prev, quantity: "" }));
+        return;
+      }
+      const parsed = Number.parseInt(value, 10);
+      if (Number.isNaN(parsed)) return;
+      const next = Math.max(0, parsed);
+      lastQuantityRef.current = next;
+      setForm((prev) => ({ ...prev, quantity: next }));
+      return;
+    }
     setForm((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
     }));
+  }
+
+  function adjustQuantity(delta) {
+    setForm((prev) => {
+      const typed = Number.parseInt(String(prev.quantity), 10);
+      const base = Number.isNaN(typed) ? lastQuantityRef.current : typed;
+      const next = Math.max(0, base + delta);
+      lastQuantityRef.current = next;
+      return { ...prev, quantity: next };
+    });
+  }
+
+  function handleQuantityFocus() {
+    lastQuantityRef.current =
+      Number.parseInt(String(form.quantity), 10) || lastQuantityRef.current || 0;
+    setForm((prev) => ({ ...prev, quantity: "" }));
+  }
+
+  function handleQuantityBlur() {
+    setForm((prev) => {
+      if (prev.quantity === "" || prev.quantity === null) {
+        return { ...prev, quantity: lastQuantityRef.current };
+      }
+      const parsed = Number.parseInt(String(prev.quantity), 10);
+      const next = Number.isNaN(parsed)
+        ? lastQuantityRef.current
+        : Math.max(0, parsed);
+      lastQuantityRef.current = next;
+      return { ...prev, quantity: next };
+    });
   }
 
   async function handleSubmit(event) {
@@ -68,13 +114,19 @@ export default function ItemForm({
       form.year === "" || form.year === null || form.year === undefined
         ? null
         : Number(form.year);
+    const quantityValue = Number.parseInt(String(form.quantity), 10);
+    const quantity = Number.isNaN(quantityValue)
+      ? lastQuantityRef.current
+      : Math.max(0, quantityValue);
+    lastQuantityRef.current = quantity;
     await onSubmit({
       name: form.name.trim(),
-      quantity: form.quantity,
+      quantity,
       year: yearValue,
       image: form.image,
     });
     if (!initialValues) {
+      lastQuantityRef.current = 0;
       setForm(emptyForm);
       setPreviewUrl(null);
       if (cameraInputRef.current) cameraInputRef.current.value = "";
@@ -96,14 +148,45 @@ export default function ItemForm({
       </label>
       <label>
         Quantità
-        <input
-          name="quantity"
-          type="number"
-          min="0"
-          value={form.quantity}
-          onChange={handleChange}
-          disabled={disabled}
-        />
+        <div className="quantity-stepper">
+          <button
+            type="button"
+            className="quantity-btn"
+            aria-label="Diminuisci quantità"
+            disabled={
+              disabled ||
+              (form.quantity !== ""
+                ? Number(form.quantity) <= 0
+                : lastQuantityRef.current <= 0)
+            }
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => adjustQuantity(-1)}
+          >
+            −
+          </button>
+          <input
+            name="quantity"
+            type="number"
+            min="0"
+            inputMode="numeric"
+            value={form.quantity}
+            onChange={handleChange}
+            onFocus={handleQuantityFocus}
+            onBlur={handleQuantityBlur}
+            disabled={disabled}
+            aria-label="Quantità"
+          />
+          <button
+            type="button"
+            className="quantity-btn"
+            aria-label="Aumenta quantità"
+            disabled={disabled}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => adjustQuantity(1)}
+          >
+            +
+          </button>
+        </div>
       </label>
       <label>
         Anno
